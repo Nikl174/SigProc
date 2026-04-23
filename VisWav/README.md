@@ -8,3 +8,7 @@
 make # native using gcc
 make emscripten # web using emcc
 ```
+
+## Notes
+
+[WAV Header format](https://en.wikipedia.org/wiki/WAV:~:text=WAV%20file%20header)
