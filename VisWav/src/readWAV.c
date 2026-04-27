@@ -1,12 +1,13 @@
 #include <SDL3/SDL.h>
+#include <bits/byteswap.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 typedef struct {
   // ---- RIFF Header chunk ----
   //! 'RIFF'
@@ -121,6 +122,7 @@ int32_t *parse_RIFF_file(const char *path, RIFF_Header *out_header,
     // TODO malloc?
     uint32_t data_size = riff.header.data_size;
     uint8_t byte_size = get_bit_bytes(riff.header.bits_per_sample);
+    printf("Byte size: %d\n", byte_size);
     if (byte_size == 0) {
       printf("Error in order calculation\n");
       return NULL;
@@ -144,7 +146,6 @@ int32_t *parse_RIFF_file(const char *path, RIFF_Header *out_header,
   fclose(file);
   return samples;
 }
-
 
 // Convert data coordinates to screen coordinates
 void to_screen(float x, float y, int *sx, int *sy, float xmin, float xmax,
@@ -213,7 +214,8 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < xmax; i += header.num_channels) {
       int x1, y1, x2, y2;
-      to_screen(i, samples[i], &x1, &y1, xmin, xmax, ymin, ymax);
+      to_screen(i, (int32_t)__bswap_constant_32(samples[i]), &x1, &y1, xmin,
+                xmax, ymin, ymax);
       to_screen(i, 0, &x2, &y2, xmin, xmax, ymin, ymax);
 
       SDL_RenderLine(renderer, x1, y1, x2, y2);

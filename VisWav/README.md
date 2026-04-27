@@ -10,6 +10,8 @@ make emscripten # web using emcc
 ```
 ## [readWAV](./src/readWAV.c)
 
+![Sin WAV plot](./img/wav_sin_plot_sdl.png)
+
 - simple program for reading and visualising a WAV file
 - Mouse wheel to zoom
 
