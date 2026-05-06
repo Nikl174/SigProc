@@ -84,7 +84,8 @@ int32_t *parse_RIFF_file(const char *path, RIFF_Header *out_header,
     }
     int num_of_samples = data_size / byte_size;
     samples = calloc(num_of_samples, byte_size);
-    if (out_num_samples == NULL) {
+    if (out_num_samples == NULL || samples == NULL) {
+      // TODO msg?
       return NULL;
     }
     // assert out_num_samples != NULL
