@@ -1,6 +1,8 @@
+#include "fft.h"
 #include "read_wav.h"
 #include <SDL3/SDL.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,12 +46,42 @@ int main(int argc, char *argv[]) {
   int read_samples = 0;
   uint16_t x_max_divisor = 400;
   int32_t *samples;
+  int32_t *spectrum;
+  int fft_samples_num = 880;
 
   if (argc > 1) {
     samples = parse_RIFF_file(argv[1], &header, &read_samples);
+    fft_samples_num = header.frequency / 2;
     print_riff_header(&header);
     printf("-----------------------\n");
     printf("Read samples: %i\n", read_samples);
+    if (!(samples && read_samples > fft_samples_num)) {
+      printf("Error reading samples: %x, fft_samples_num: %d\n", samples,
+             fft_samples_num);
+      return 1;
+    }
+    // TODO
+    double *d_samples = calloc(sizeof(double), fft_samples_num);
+    spectrum = calloc(sizeof(int32_t), fft_samples_num);
+    for (int i = 0; i < fft_samples_num; i++) {
+      d_samples[i] = (double)samples[i];
+    }
+
+    SpectrumPoint *points =
+        to_spectrum(d_samples, fft_samples_num, header.frequency);
+
+    if (!points) {
+      printf("Error while calculating the spectrum!\n");
+      return 1;
+    }
+
+    printf("Spectrum:\n");
+    printf("-----------------\n");
+    for (int i = 0; i < fft_samples_num / 2; i++) {
+      spectrum[i] = points[i].magnitude;
+      printf("Mag: %f;\tFreq: %f;\n", points[i].magnitude, points[i].frequency);
+    }
+    printf("-----------------\n");
 
   } else {
     printf("Usage: %s PATH_TO_WAV_FILE\n", argv[0]);
@@ -59,7 +91,7 @@ int main(int argc, char *argv[]) {
   // SDL INIT
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_Window *window = SDL_CreateWindow("SDL3 XY Plot", WINDOW_WIDTH,
+  SDL_Window *window = SDL_CreateWindow("Wave visualisation", WINDOW_WIDTH,
                                         WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 
   SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
@@ -68,7 +100,9 @@ int main(int argc, char *argv[]) {
   SDL_Event event;
 
   // Plot bounds
-  float xmin = 0, xmax = header.frequency * header.num_channels / x_max_divisor;
+  float xmin = 0,
+        xmax = fft_samples_num; // header.frequency / 2 *
+                                // header.num_channels / x_max_divisor;
   float ymin = -INT32_MAX, ymax = INT32_MAX;
 
   while (running) {
@@ -89,8 +123,8 @@ int main(int argc, char *argv[]) {
     SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
     SDL_RenderClear(renderer);
 
-    plot_wav_file(renderer, samples, header.num_channels, WINDOW_WIDTH,
-                  WINDOW_HEIGHT, xmin, xmax, ymin, ymax);
+    plot_wav_file(renderer, spectrum, header.num_channels, WINDOW_WIDTH,
+                  WINDOW_HEIGHT, xmin, (xmax / 2) + 1, ymin, ymax);
 
     SDL_RenderPresent(renderer);
     SDL_Delay(16);
