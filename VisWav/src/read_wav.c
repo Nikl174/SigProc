@@ -1,4 +1,5 @@
 #include "read_wav.h"
+#include <endian.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,6 +97,10 @@ int32_t *parse_RIFF_file(const char *path, RIFF_Header *out_header,
              "bytes\nRead: %d\n",
              num_of_samples, *out_num_samples);
       return NULL;
+    }
+    // edjust to the right endianes TODO?
+    for (int i = 0; i < num_of_samples; i++) {
+      samples[i] = __bswap_constant_32(samples[i]);
     }
   }
 

@@ -32,8 +32,7 @@ void plot_wav_file(SDL_Renderer *renderer, int32_t *samples, uint8_t channels,
     int x1, y1, x2, y2;
     to_screen(i, 0, &x1, &y1, xmin, xmax, ymin, ymax);
     // swap endianes of the data for wav files
-    to_screen(i, (int32_t)__bswap_constant_32(samples[i]), &x2, &y2, xmin, xmax, ymin,
-              ymax);
+    to_screen(i, samples[i], &x2, &y2, xmin, xmax, ymin, ymax);
 
     SDL_RenderLine(renderer, x1, y1, x2, y2);
   }
