@@ -1,13 +1,12 @@
 # Visualise Waves
 
-- Fourier transform signal and visualise with [SDL3](https://github.com/libsdl-org/SDL)
-- also using Emscripten to compile it so WASM
+- Fourier transform (with [FFTW](https://fftw.org/)) signal and visualise with [SDL3](https://github.com/libsdl-org/SDL)
 
 ## Dependencies
 
 - SDL3
 - fftw3
-- cmake
+- cmake (optional)
 
 ### Build
 
@@ -51,7 +50,7 @@ $: ./build/VisWav ./example_wav/Sin440.wav
 
 ## [fft spectrum](./src/fft.c)
 ```bash
-$: ./build/VisWav ./example_wav/Sin440_1000.wav
+$: ./build/VisWav -s ./example_wav/Sin440_1000.wav
 ```
 ![Sin 440 and 1000 Spectrum Plot](./img/wav_spectrum_plot.png)
 
