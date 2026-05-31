@@ -16,6 +16,7 @@ double complex_magnitude(complex double num) {
   return sqrt(creal(num) * creal(num) + cimag(num) * cimag(num));
 }
 
+// convert the discrete, real signal into frequency domain
 SpectrumPoint *to_spectrum(double *data, uint n_samples, uint f_sampling) {
   fftw_complex *dft_out;
   double *windowed_data;
@@ -50,13 +51,14 @@ SpectrumPoint *to_spectrum(double *data, uint n_samples, uint f_sampling) {
 
   // execute the plan and calculate DFT complex values
   fftw_execute(p);
-
   // assert out != empty, if everything went right
 
   // TODO efficiency?
   // compute frequencies and actual magnitude
   for (int k = 0; k < n_freq; k++) {
     points[k].frequency = (double)k * f_sampling / n_samples;
+    // because the fft return complex number, actual magnitude needs to be
+    // calculated (euclidean distance) and normalised for the hann window ???
     points[k].magnitude =
         complex_magnitude(dft_out[k]) / ((double)n_samples * 1 / 2);
 
@@ -65,9 +67,9 @@ SpectrumPoint *to_spectrum(double *data, uint n_samples, uint f_sampling) {
       points[k].magnitude *= 2.0;
   }
 
-  // free self managed memory
 
 exit:
+  // free self managed memory
   fftw_destroy_plan(p);
   free(windowed_data);
   fftw_free(dft_out);

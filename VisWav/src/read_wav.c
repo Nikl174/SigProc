@@ -78,7 +78,6 @@ int32_t *parse_RIFF_file(const char *path, RIFF_Header *out_header,
     // TODO malloc?
     uint32_t data_size = riff.header.data_size;
     uint8_t byte_size = get_bit_bytes(riff.header.bits_per_sample);
-    printf("Byte size: %d\n", byte_size);
     if (byte_size == 0) {
       printf("Error in order calculation\n");
       return NULL;
