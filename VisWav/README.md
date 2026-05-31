@@ -38,7 +38,7 @@ OPTIONS:
 ```
 
 
-## [readWAV](./src/read_wav.c.c)
+## [read_wav](./src/read_wav.c)
 
 ```bash
 $: ./build/VisWav ./example_wav/Sin440.wav
